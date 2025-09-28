@@ -1,33 +1,20 @@
-import { getClientConfig } from "../config/client";
 import { SubmitKey } from "../store/config";
-import { SAAS_CHAT_UTM_URL } from "@/app/constant";
-
-const isApp = !!getClientConfig()?.isApp;
 
 const cn = {
   WIP: "该功能仍在开发中……",
   Error: {
-    Unauthorized: isApp
-      ? `😆 对话遇到了一些问题，不用慌:
-       \\ 1️⃣ 想要零配置开箱即用，[点击这里立刻开启对话 🚀](${SAAS_CHAT_UTM_URL})
-       \\ 2️⃣ 如果你想消耗自己的 OpenAI 资源，点击[这里](/#/settings)修改设置 ⚙️`
-      : `😆 对话遇到了一些问题，不用慌:
-       \ 1️⃣ 想要零配置开箱即用，[点击这里立刻开启对话 🚀](${SAAS_CHAT_UTM_URL})
-       \ 2️⃣ 如果你正在使用私有部署版本，点击[这里](/#/auth)输入访问秘钥 🔑
-       \ 3️⃣ 如果你想消耗自己的 OpenAI 资源，点击[这里](/#/settings)修改设置 ⚙️
-       `,
+    Unauthorized: `😆 请从crm进入，点击[这里](https://crm.huaqiutong.com/)去crm 🔑`,
   },
   Auth: {
     Return: "返回",
     Title: "需要密码",
-    Tips: "管理员开启了密码验证，请在下方填入访问码",
+    Tips: "如果您已登陆crm，请在下方填入Token",
     SubTips: "或者输入你的 OpenAI 或 Google AI 密钥",
-    Input: "在此处填写访问码",
+    Input: "在此处填写Token",
     Confirm: "确认",
     Later: "稍后再说",
-    SaasTips: "配置太麻烦，想要立即使用",
-    TopTips:
-      "🥳 NextChat AI 首发优惠，立刻解锁 OpenAI o1, GPT-4o, Claude-3.5 等最新大模型",
+    SaasTips: "立即使用",
+    TopTips: "🥳 立刻解锁 OpenAI o1, GPT-4o, Claude-3.5 等最新大模型",
   },
   ChatItem: {
     ChatItemCount: (count: number) => `${count} 条对话`,
@@ -61,7 +48,7 @@ const cn = {
     },
     Commands: {
       new: "新建聊天",
-      newm: "从面具新建聊天",
+      newm: "从角色新建聊天",
       next: "下一个聊天",
       prev: "上一个聊天",
       clear: "清除上下文",
@@ -77,7 +64,7 @@ const cn = {
         dark: "深色模式",
       },
       Prompt: "快捷指令",
-      Masks: "所有面具",
+      Masks: "所有角色",
       Clear: "清除聊天",
       Settings: "对话设置",
       UploadImage: "上传图片",
@@ -96,7 +83,7 @@ const cn = {
     StopSpeak: "停止",
     Config: {
       Reset: "清除记忆",
-      SaveAs: "存为面具",
+      SaveAs: "存为角色",
     },
     IsContext: "预设提示词",
     ShortcutKey: {
@@ -121,8 +108,8 @@ const cn = {
       SubTitle: "可以导出 Markdown 文本或者 PNG 图片",
     },
     IncludeContext: {
-      Title: "包含面具上下文",
-      SubTitle: "是否在消息中展示面具上下文",
+      Title: "包含角色上下文",
+      SubTitle: "是否在消息中展示角色上下文",
     },
     Steps: {
       Select: "选取",
@@ -259,18 +246,18 @@ const cn = {
 
       LocalState: "本地数据",
       Overview: (overview: any) => {
-        return `${overview.chat} 次对话，${overview.message} 条消息，${overview.prompt} 条提示词，${overview.mask} 个面具`;
+        return `${overview.chat} 次对话，${overview.message} 条消息，${overview.prompt} 条提示词，${overview.mask} 个角色`;
       },
       ImportFailed: "导入失败",
     },
     Mask: {
       Splash: {
-        Title: "面具启动页",
-        SubTitle: "新建聊天时，展示面具启动页",
+        Title: "角色启动页",
+        SubTitle: "新建聊天时，展示角色启动页",
       },
       Builtin: {
-        Title: "隐藏内置面具",
-        SubTitle: "在所有面具列表中隐藏内置面具",
+        Title: "隐藏内置角色",
+        SubTitle: "在所有角色列表中隐藏内置角色",
       },
     },
     Prompt: {
@@ -319,9 +306,9 @@ const cn = {
         ChatNow: "立刻对话",
       },
       AccessCode: {
-        Title: "访问密码",
-        SubTitle: "管理员已开启加密访问",
-        Placeholder: "请输入访问密码",
+        Title: "使用Token",
+        SubTitle: "只能通过crm进入gpt",
+        Placeholder: "请输入crm的Token",
       },
       CustomEndpoint: {
         Title: "自定义接口",
@@ -722,11 +709,11 @@ const cn = {
     },
   },
   Mask: {
-    Name: "面具",
+    Name: "角色",
     Page: {
-      Title: "预设角色面具",
+      Title: "预设扮演角色",
       SubTitle: (count: number) => `${count} 个预设角色定义`,
-      Search: "搜索角色面具",
+      Search: "搜索扮演角色",
       Create: "新建",
     },
     Item: {
@@ -739,7 +726,7 @@ const cn = {
     },
     EditModal: {
       Title: (readonly: boolean) =>
-        `编辑预设面具 ${readonly ? "（只读）" : ""}`,
+        `编辑预设角色 ${readonly ? "（只读）" : ""}`,
       Download: "下载预设",
       Clone: "克隆预设",
     },
@@ -764,8 +751,8 @@ const cn = {
         SubTitle: "启用之后可以自动折叠/展开过长的代码块",
       },
       Share: {
-        Title: "分享此面具",
-        SubTitle: "生成此面具的直达链接",
+        Title: "分享此角色",
+        SubTitle: "生成此角色的直达链接",
         Action: "复制链接",
       },
     },
@@ -775,8 +762,8 @@ const cn = {
     Skip: "直接开始",
     NotShow: "不再展示",
     ConfirmNoShow: "确认禁用？禁用后可以随时在设置中重新启用。",
-    Title: "挑选一个面具",
-    SubTitle: "现在开始，与面具背后的灵魂思维碰撞",
+    Title: "挑选一个角色",
+    SubTitle: "现在开始，与角色背后的灵魂思维碰撞",
     More: "查看全部",
   },
 

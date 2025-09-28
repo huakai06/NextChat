@@ -9,17 +9,14 @@ import CopyIcon from "../icons/copy.svg";
 import ClearIcon from "../icons/clear.svg";
 import LoadingIcon from "../icons/three-dots.svg";
 import EditIcon from "../icons/edit.svg";
-import FireIcon from "../icons/fire.svg";
 import EyeIcon from "../icons/eye.svg";
 import DownloadIcon from "../icons/download.svg";
 import UploadIcon from "../icons/upload.svg";
-import ConfigIcon from "../icons/config.svg";
 import ConfirmIcon from "../icons/confirm.svg";
 
 import ConnectionIcon from "../icons/connection.svg";
 import CloudSuccessIcon from "../icons/cloud-success.svg";
 import CloudFailIcon from "../icons/cloud-fail.svg";
-import { trackSettingsPageGuideToCPaymentClick } from "../utils/auth-settings-events";
 import {
   Input,
   List,
@@ -29,7 +26,6 @@ import {
   Popover,
   Select,
   showConfirm,
-  showToast,
 } from "./ui-lib";
 import { ModelConfigList } from "./model-config";
 
@@ -38,7 +34,6 @@ import {
   SubmitKey,
   useChatStore,
   Theme,
-  useUpdateStore,
   useAccessStore,
   useAppConfig,
 } from "../store";
@@ -49,8 +44,7 @@ import Locale, {
   changeLang,
   getLang,
 } from "../locales";
-import { copyToClipboard, clientUpdate, semverCompare } from "../utils";
-import Link from "next/link";
+import { copyToClipboard } from "../utils";
 import {
   Anthropic,
   Azure,
@@ -64,14 +58,11 @@ import {
   GoogleSafetySettingsThreshold,
   OPENAI_BASE_URL,
   Path,
-  RELEASE_URL,
   STORAGE_KEY,
   ServiceProvider,
   SlotID,
-  UPDATE_URL,
   Stability,
   Iflytek,
-  SAAS_CHAT_URL,
   ChatGLM,
   DeepSeek,
   SiliconFlow,
@@ -491,9 +482,6 @@ function SyncItems() {
   const chatStore = useChatStore();
   const promptStore = usePromptStore();
   const maskStore = useMaskStore();
-  const couldSync = useMemo(() => {
-    return syncStore.cloudSync();
-  }, [syncStore]);
 
   const [showSyncConfigModal, setShowSyncConfigModal] = useState(false);
 
@@ -512,43 +500,6 @@ function SyncItems() {
   return (
     <>
       <List>
-        <ListItem
-          title={Locale.Settings.Sync.CloudState}
-          subTitle={
-            syncStore.lastProvider
-              ? `${new Date(syncStore.lastSyncTime).toLocaleString()} [${
-                  syncStore.lastProvider
-                }]`
-              : Locale.Settings.Sync.NotSyncYet
-          }
-        >
-          <div style={{ display: "flex" }}>
-            <IconButton
-              aria={Locale.Settings.Sync.CloudState + Locale.UI.Config}
-              icon={<ConfigIcon />}
-              text={Locale.UI.Config}
-              onClick={() => {
-                setShowSyncConfigModal(true);
-              }}
-            />
-            {couldSync && (
-              <IconButton
-                icon={<ResetIcon />}
-                text={Locale.UI.Sync}
-                onClick={async () => {
-                  try {
-                    await syncStore.sync();
-                    showToast(Locale.Settings.Sync.Success);
-                  } catch (e) {
-                    showToast(Locale.Settings.Sync.Fail);
-                    console.error("[Sync]", e);
-                  }
-                }}
-              />
-            )}
-          </div>
-        </ListItem>
-
         <ListItem
           title={Locale.Settings.Sync.LocalState}
           subTitle={Locale.Settings.Sync.Overview(stateOverview)}
@@ -586,24 +537,6 @@ export function Settings() {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const config = useAppConfig();
   const updateConfig = config.update;
-
-  const updateStore = useUpdateStore();
-  const [checkingUpdate, setCheckingUpdate] = useState(false);
-  const currentVersion = updateStore.formatVersion(updateStore.version);
-  const remoteId = updateStore.formatVersion(updateStore.remoteVersion);
-  const hasNewVersion = semverCompare(currentVersion, remoteId) === -1;
-  const updateUrl = getClientConfig()?.isApp ? RELEASE_URL : UPDATE_URL;
-
-  function checkUpdate(force = false) {
-    setCheckingUpdate(true);
-    updateStore.getLatestVersion(force).then(() => {
-      setCheckingUpdate(false);
-    });
-
-    console.log("[Update] local version ", updateStore.version);
-    console.log("[Update] remote version ", updateStore.remoteVersion);
-  }
-
   const accessStore = useAccessStore();
   const shouldHideBalanceQuery = useMemo(() => {
     const isOpenAiUrl = accessStore.openaiUrl.includes(OPENAI_BASE_URL);
@@ -619,10 +552,6 @@ export function Settings() {
     accessStore.provider,
   ]);
 
-  const usage = {
-    used: updateStore.used,
-    subscription: updateStore.subscription,
-  };
   const [loadingUsage, setLoadingUsage] = useState(false);
   function checkUsage(force = false) {
     if (shouldHideBalanceQuery) {
@@ -630,9 +559,6 @@ export function Settings() {
     }
 
     setLoadingUsage(true);
-    updateStore.updateUsage(force).finally(() => {
-      setLoadingUsage(false);
-    });
   }
 
   const enabledAccessControl = useMemo(
@@ -649,7 +575,6 @@ export function Settings() {
   const showUsage = accessStore.isAuthorized();
   useEffect(() => {
     // checks per minutes
-    checkUpdate();
     showUsage && checkUsage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -689,31 +614,6 @@ export function Settings() {
           accessStore.update(
             (access) => (access.accessCode = e.currentTarget.value),
           );
-        }}
-      />
-    </ListItem>
-  );
-
-  const saasStartComponent = (
-    <ListItem
-      className={styles["subtitle-button"]}
-      title={
-        Locale.Settings.Access.SaasStart.Title +
-        `${Locale.Settings.Access.SaasStart.Label}`
-      }
-      subTitle={Locale.Settings.Access.SaasStart.SubTitle}
-    >
-      <IconButton
-        aria={
-          Locale.Settings.Access.SaasStart.Title +
-          Locale.Settings.Access.SaasStart.ChatNow
-        }
-        icon={<FireIcon />}
-        type={"primary"}
-        text={Locale.Settings.Access.SaasStart.ChatNow}
-        onClick={() => {
-          trackSettingsPageGuideToCPaymentClick();
-          window.location.href = SAAS_CHAT_URL;
         }}
       />
     </ListItem>
@@ -1459,44 +1359,44 @@ export function Settings() {
     </>
   );
 
-  const ai302ConfigComponent = accessStore.provider === ServiceProvider["302.AI"] && (
+  const ai302ConfigComponent = accessStore.provider ===
+    ServiceProvider["302.AI"] && (
     <>
       <ListItem
-          title={Locale.Settings.Access.AI302.Endpoint.Title}
-          subTitle={
-            Locale.Settings.Access.AI302.Endpoint.SubTitle +
-            AI302.ExampleEndpoint
+        title={Locale.Settings.Access.AI302.Endpoint.Title}
+        subTitle={
+          Locale.Settings.Access.AI302.Endpoint.SubTitle + AI302.ExampleEndpoint
+        }
+      >
+        <input
+          aria-label={Locale.Settings.Access.AI302.Endpoint.Title}
+          type="text"
+          value={accessStore.ai302Url}
+          placeholder={AI302.ExampleEndpoint}
+          onChange={(e) =>
+            accessStore.update(
+              (access) => (access.ai302Url = e.currentTarget.value),
+            )
           }
-        >
-          <input
-            aria-label={Locale.Settings.Access.AI302.Endpoint.Title}
-            type="text"
-            value={accessStore.ai302Url}
-            placeholder={AI302.ExampleEndpoint}
-            onChange={(e) =>
-              accessStore.update(
-                (access) => (access.ai302Url = e.currentTarget.value),
-              )
-            }
-          ></input>
-        </ListItem>
-        <ListItem
-          title={Locale.Settings.Access.AI302.ApiKey.Title}
-          subTitle={Locale.Settings.Access.AI302.ApiKey.SubTitle}
-        >
-          <PasswordInput
-            aria-label={Locale.Settings.Access.AI302.ApiKey.Title}
-            value={accessStore.ai302ApiKey}
-            type="text"
-            placeholder={Locale.Settings.Access.AI302.ApiKey.Placeholder}
-            onChange={(e) => {
-              accessStore.update(
-                (access) => (access.ai302ApiKey = e.currentTarget.value),
-              );
-            }}
-          />
-        </ListItem>
-      </>
+        ></input>
+      </ListItem>
+      <ListItem
+        title={Locale.Settings.Access.AI302.ApiKey.Title}
+        subTitle={Locale.Settings.Access.AI302.ApiKey.SubTitle}
+      >
+        <PasswordInput
+          aria-label={Locale.Settings.Access.AI302.ApiKey.Title}
+          value={accessStore.ai302ApiKey}
+          type="text"
+          placeholder={Locale.Settings.Access.AI302.ApiKey.Placeholder}
+          onChange={(e) => {
+            accessStore.update(
+              (access) => (access.ai302ApiKey = e.currentTarget.value),
+            );
+          }}
+        />
+      </ListItem>
+    </>
   );
 
   return (
@@ -1549,39 +1449,6 @@ export function Settings() {
                 <Avatar avatar={config.avatar} />
               </div>
             </Popover>
-          </ListItem>
-
-          <ListItem
-            title={Locale.Settings.Update.Version(currentVersion ?? "unknown")}
-            subTitle={
-              checkingUpdate
-                ? Locale.Settings.Update.IsChecking
-                : hasNewVersion
-                ? Locale.Settings.Update.FoundUpdate(remoteId ?? "ERROR")
-                : Locale.Settings.Update.IsLatest
-            }
-          >
-            {checkingUpdate ? (
-              <LoadingIcon />
-            ) : hasNewVersion ? (
-              clientConfig?.isApp ? (
-                <IconButton
-                  icon={<ResetIcon></ResetIcon>}
-                  text={Locale.Settings.Update.GoToUpdate}
-                  onClick={() => clientUpdate()}
-                />
-              ) : (
-                <Link href={updateUrl} target="_blank" className="link">
-                  {Locale.Settings.Update.GoToUpdate}
-                </Link>
-              )
-            ) : (
-              <IconButton
-                icon={<ResetIcon></ResetIcon>}
-                text={Locale.Settings.Update.CheckUpdate}
-                onClick={() => checkUpdate(true)}
-              />
-            )}
           </ListItem>
 
           <ListItem title={Locale.Settings.SendKey}>
@@ -1816,7 +1683,6 @@ export function Settings() {
         </List>
 
         <List id={SlotID.CustomModel}>
-          {saasStartComponent}
           {accessCodeComponent}
 
           {!accessStore.hideUserApiKey && (
@@ -1876,10 +1742,7 @@ export function Settings() {
                 showUsage
                   ? loadingUsage
                     ? Locale.Settings.Usage.IsChecking
-                    : Locale.Settings.Usage.SubTitle(
-                        usage?.used ?? "[?]",
-                        usage?.subscription ?? "[?]",
-                      )
+                    : ""
                   : Locale.Settings.Usage.NoAccess
               }
             >

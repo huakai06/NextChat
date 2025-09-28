@@ -24,7 +24,7 @@ function parseApiKey(bearToken: string) {
   };
 }
 
-export function auth(req: NextRequest, modelProvider: ModelProvider) {
+export async function auth(req: NextRequest, modelProvider: ModelProvider) {
   const authToken = req.headers.get("Authorization") ?? "";
 
   // check if it is openai api key or user token
@@ -38,11 +38,19 @@ export function auth(req: NextRequest, modelProvider: ModelProvider) {
   console.log("[Auth] hashed access code:", hashedCode);
   console.log("[User IP] ", getIP(req));
   console.log("[Time] ", new Date().toLocaleString());
-
-  if (serverConfig.needCode && !serverConfig.codes.has(hashedCode) && !apiKey) {
+  try {
+    const response = await fetch('https://service.huaqiutong.net/api/auth/token?id=' + accessCode);
+    const data = await response.json();
+    if (!data.msg || data.msg==='failed') {
+      return {
+        error: true,
+        msg: "None authenticated",
+      };
+    }
+  } catch (error) {
     return {
       error: true,
-      msg: !accessCode ? "empty access code" : "wrong access code",
+      msg: "None authenticated",
     };
   }
 
