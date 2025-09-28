@@ -7,15 +7,7 @@ const isApp = !!getClientConfig()?.isApp;
 const cs: PartialLocaleType = {
   WIP: "V přípravě...",
   Error: {
-    Unauthorized: isApp
-      ? `😆 Rozhovor narazil na nějaké problémy, nebojte se:
-    \\ 1️⃣ Pokud chcete začít bez konfigurace, [klikněte sem pro okamžitý začátek chatu 🚀](${SAAS_CHAT_UTM_URL})
-    \\ 2️⃣ Pokud chcete využít své vlastní zdroje OpenAI, klikněte [sem](/#/settings) a upravte nastavení ⚙️`
-      : `😆 Rozhovor narazil na nějaké problémy, nebojte se:
-    \ 1️⃣ Pokud chcete začít bez konfigurace, [klikněte sem pro okamžitý začátek chatu 🚀](${SAAS_CHAT_UTM_URL})
-    \ 2️⃣ Pokud používáte verzi soukromého nasazení, klikněte [sem](/#/auth) a zadejte přístupový klíč 🔑
-    \ 3️⃣ Pokud chcete využít své vlastní zdroje OpenAI, klikněte [sem](/#/settings) a upravte nastavení ⚙️
- `,
+    Unauthorized: `😆 [Login from HQT CRM now 🚀](${SAAS_CHAT_UTM_URL}) ⚙️`,
   },
   Auth: {
     Title: "Potřebné heslo",

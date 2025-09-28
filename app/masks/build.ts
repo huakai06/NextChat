@@ -19,7 +19,7 @@ fs.writeFile(
   JSON.stringify(BUILTIN_MASKS, null, 4),
   function (error) {
     if (error) {
-      console.error("[Build] failed to build masks", error);
+      console.error("[Build] failed to build masks:", error);
     }
   },
 );
